@@ -1,9 +1,54 @@
+
+const { IncomingForm } = require('formidable')
+const { readTasksFromFile , writeTasksToFile } = require("../utils/fileHandeler");
+
 exports.getTasks = (req, res) => {
+    const tasks = readTasksFromFile();
+    res.writeHead(200, {'content-type': 'application/json'})
+    res.end(JSON.stringify(tasks))
+};
+
+exports.updateTasks = (req, res) => {
+    res.end(JSON.stringify({
+        message: 'Update Not yet implemented!'
+    }))
     
 };
 
-exports.updateTasks = (req, res) => {};
+exports.deleteTasks = (req, res) => {
+    res.end(JSON.stringify({
+        message: 'Delete Not yet implemented!'
+    }))
+};
 
-exports.deleteTasks = (req, res) => {};
+exports.createTasks = (req, res) => {
+    const form= new IncomingForm();
+    form.parse(req, (err, fields, files) =>{
+        if(err){
+            res.writeHead(400, {'content-type': 'application/json'});
+            res.end(JSON.stringify({
+                message: 'Error parsing form'
+            }))
+            return;
+        }
+        const image = File.image[0]
+        const tasks = readTasksFromFile()
+        const newTask = {
+            id: Date.Now(),
+            title: fields.title,
+            description: fields ?.description || '',
+            status: fields ?.status || 'parsing',
+            Image: files.Image ?`/uploads/${image.originalFilename}`: null,
+        }
+        tasks.push(newTask);
 
-exports.createTasks = (req, res) => {};
+        writeTasksToFile(tasks);
+
+        if(files.image) {
+            copyFileSync(image.files.path, path.join(__dirname,'../uploads' , image.newFilename))
+            res.end(JSON.stringify(newTask))
+        }
+    })
+
+
+};
